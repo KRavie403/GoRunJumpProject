@@ -60,10 +60,11 @@ public class AudioManager : MonoBehaviour
     private void Start()
     {
         SceneManager.sceneLoaded += OnSceneChanged;
-        PlayBGM("TitleSceneBGM");
+        PlayBGM("0.TitleSceneBGM");
     }
     public void PlayBGM(string title)
     {
+        Debug.Log("title: " + title);
         Sound s = Array.Find(bgmSounds, x => x.title == title);
 
         if(s == null)

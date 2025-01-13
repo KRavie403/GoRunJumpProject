@@ -28,6 +28,6 @@ public class TutorialEndPerception : MonoBehaviour
     private IEnumerator LoadSceneAfterDelay()
     {
         yield return new WaitForSeconds(4f);
-        SceneManager.LoadScene("StagesScene"); 
+        SceneManager.LoadScene("2.StagesScene"); 
     }
 }

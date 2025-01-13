@@ -9,11 +9,15 @@ public class PlayerMovement : MonoBehaviour
 
     [SerializeField] private AnimatorController _animatorController;
 
-    [SerializeField] private float _moveSpeed;
-    [SerializeField] private float _rotateSpeed;
-    [SerializeField] private float _jumpForce = 50f;
-    [SerializeField] private float _customGravity = 50f;
-    [SerializeField] private float _rotationSpeed = 50f;
+    private bool canMove = false;
+    private float startDelay = 15f;
+    private float elapsedTime = 0f;
+
+    private float _moveSpeed = 15f;
+    private float _rotateSpeed = 10f;
+    private float _jumpForce = 50f;
+    private float _customGravity = 1f;
+    private float _rotationSpeed = 50f;
 
     private Rigidbody _rigidbody;
 
@@ -28,21 +32,50 @@ public class PlayerMovement : MonoBehaviour
         _rigidbody.useGravity = false;
     }
 
+    private void Start()
+    {
+        canMove = false;
+        startDelay = 10f;
+        elapsedTime = 0f;
+        StartCoroutine(CheckMovementTimer());
+    }
+
     private void Update()
     {
-        Move();
-        if (isAttached)
+        if (canMove == true)
         {
-            transform.parent.Rotate(Vector3.up * _rotationSpeed * Time.deltaTime, Space.World);
+            Move();
+            if (Input.GetKeyDown(KeyCode.Space) && !isJumping)
+            {
+                Jump();
+            }
+            if (isAttached)
+            {
+                // 부모 오브젝트를 회전시키는 코드
+                transform.parent.Rotate(Vector3.up * _rotationSpeed * Time.deltaTime, Space.World);
+            }
         }
+    }
+
+    private IEnumerator CheckMovementTimer()
+    {
+        while (elapsedTime < startDelay)
+        {
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        canMove = true;
     }
 
 
     private void Move()
     {
         _moveVector = Vector3.zero;
-        _moveVector.x = _joystick.Horizontal * _moveSpeed * Time.deltaTime;
-        _moveVector.z = _joystick.Vertical * _moveSpeed * Time.deltaTime;
+
+        // 조이스틱 입력
+        _moveVector.x = _joystick.Horizontal * _moveSpeed * 0.2f * Time.deltaTime;
+        _moveVector.z = _joystick.Vertical * _moveSpeed * 0.2f * Time.deltaTime;
 
         isFalling = _rigidbody.velocity.y < -1f;
 
@@ -51,9 +84,14 @@ public class PlayerMovement : MonoBehaviour
             Vector3 direction = Vector3.RotateTowards(transform.forward, _moveVector, _rotateSpeed * Time.deltaTime, 0.0f);
             transform.rotation = Quaternion.LookRotation(direction);
 
+
             if (transform.position.y > 1.6f && isFalling)
             {
                 _animatorController.PlayFall1();
+            }
+            else if (transform.position.z > 248f && transform.position.z < 287)
+            {
+                _animatorController.PlaySlide();
             }
             else
             {
@@ -64,11 +102,16 @@ public class PlayerMovement : MonoBehaviour
 
 
 
-        else if(_joystick.Horizontal == 0 && _joystick.Vertical == 0)
+        else if (_joystick.Horizontal == 0 && _joystick.Vertical == 0)
         {
+
             if (transform.position.y > 1.6f && isFalling)
             {
                 _animatorController.PlayFall1();
+            }
+            else if (transform.position.z > 248f && transform.position.z < 287)
+            {
+                _animatorController.PlaySlide();
             }
             else
             {
@@ -76,13 +119,70 @@ public class PlayerMovement : MonoBehaviour
             }
         }
 
+        // 키보드 입력 추가
+        if (Input.GetKey(KeyCode.W))
+        {
+            _moveVector.z += _moveSpeed * Time.deltaTime;
+        }
+        if (Input.GetKey(KeyCode.S))
+        {
+            _moveVector.z -= _moveSpeed * Time.deltaTime;
+        }
+        if (Input.GetKey(KeyCode.A))
+        {
+            _moveVector.x -= _moveSpeed * Time.deltaTime;
+        }
+        if (Input.GetKey(KeyCode.D))
+        {
+            _moveVector.x += _moveSpeed * Time.deltaTime;
+        }
+
+        isFalling = _rigidbody.velocity.y < -1f;
+
+        if (_joystick.Horizontal != 0 || _joystick.Vertical != 0 || _moveVector.magnitude > 0)
+        {
+            Vector3 direction = Vector3.RotateTowards(transform.forward, _moveVector, _rotateSpeed * Time.deltaTime, 0.0f);
+            transform.rotation = Quaternion.LookRotation(direction);
+
+
+            if (transform.position.y > 1.6f && isFalling)
+            {
+                _animatorController.PlayFall1();
+            }
+            else if (transform.position.z > 248f && transform.position.z < 287)
+            {
+                _animatorController.PlaySlide();
+            }
+            else
+            {
+                _animatorController.PlayRun();
+                //AudioManager.Instance.PlaySFX("Run ");
+            }
+        }
+        else if (_joystick.Horizontal == 0 && _joystick.Vertical == 0 && _moveVector.magnitude == 0)
+        {
+            if (transform.position.y > 1.6f && isFalling)
+            {
+                _animatorController.PlayFall1();
+            }
+            else if (transform.position.z > 248f && transform.position.z < 287)
+            {
+                _animatorController.PlaySlide();
+            }
+            else
+            {
+                _animatorController.PlayIdle();
+            }
+        }
+
+
         _rigidbody.MovePosition(_rigidbody.position + _moveVector);
         _rigidbody.AddForce(Vector3.down * _customGravity * _rigidbody.mass);
-
     }
 
     public void Jump()
     {
+
         if (!isJumping)
         {
             _animatorController.PlayJump();
@@ -94,12 +194,25 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-
+#if UNITY_EDITOR || DEBUG
         Debug.Log("Collided with: " + collision.gameObject.name + ", Layer: " + LayerMask.LayerToName(collision.gameObject.layer));
+#endif
         if (collision.gameObject.layer == LayerMask.NameToLayer("Ground") || 
             collision.gameObject.layer == LayerMask.NameToLayer("EndPoint"))
         {
             isJumping = false;
+        }
+        if (collision.gameObject.CompareTag("Bowl"))
+        {
+            transform.SetParent(collision.transform);
+        }
+    }
+
+    void OnCollisionExit(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Bowl"))
+        {
+            transform.SetParent(null);
         }
     }
 

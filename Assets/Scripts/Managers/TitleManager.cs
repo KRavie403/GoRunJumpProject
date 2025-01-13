@@ -24,7 +24,7 @@ public class TitleManager : Singleton<TitleManager>
     public void OpenStartMenu() //Start
     {
         //_audioManager.StopMusic();
-        SceneManager.LoadScene("TutorialScene");
+        SceneManager.LoadScene("1.TutorialScene");
     }
 
     public void QuitStartMenu()

@@ -55,7 +55,8 @@ public class CinematicSequence : MonoBehaviour
 
     private void EndSequence()
     {
+#if UNITY_EDITOR || DEBUG
         Debug.Log("Cinematic sequence completed.");
-        // 종료 동작을 추가할 수 있습니다.
+#endif
     }
 }

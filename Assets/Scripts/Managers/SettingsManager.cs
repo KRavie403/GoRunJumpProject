@@ -25,6 +25,7 @@ public class SettingsManager : MonoBehaviour
     }
     public void ClickRestart()
     {
+        Time.timeScale = 1;
         SceneManager.LoadScene(_currentSceneName);
     }    
     public void ClickSettings()
@@ -39,6 +40,7 @@ public class SettingsManager : MonoBehaviour
     }
     public void ClickHome()
     {
-        SceneManager.LoadScene("StagesScene");
+        Time.timeScale = 1;
+        SceneManager.LoadScene("2.StagesScene");
     }
 }

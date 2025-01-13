@@ -7,22 +7,22 @@ public class StagesManager : MonoBehaviour
 {
     public void ClickTutorial()
     {
-        SceneManager.LoadScene("TutorialScene");
+        SceneManager.LoadScene("1.TutorialScene");
     }
     public void ClickChallenge()
     {
-        SceneManager.LoadScene("ChallengeScene");
+        SceneManager.LoadScene("5.ChallengeScene");
     }
     public void ClickStage1()
     {
-        SceneManager.LoadScene("Stage1Scene");
+        SceneManager.LoadScene("3.Stage1Scene");
     }
     public void ClickStage2()
     {
-        SceneManager.LoadScene("Stage2Scene");
+        SceneManager.LoadScene("4.Stage2Scene");
     }
     public void ClickBack()
     {
-        SceneManager.LoadScene("TitleScene");
+        SceneManager.LoadScene("0.TitleScene");
     }
 }

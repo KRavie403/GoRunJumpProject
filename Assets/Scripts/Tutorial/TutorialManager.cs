@@ -7,6 +7,6 @@ public class TutorialManager : Singleton<TutorialManager>
 {
     public void ClickSkip()
     {
-        SceneManager.LoadScene("StagesScene");
+        SceneManager.LoadScene("2.StagesScene");
     }
 }
